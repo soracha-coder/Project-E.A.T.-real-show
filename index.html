@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>AI Calorie & Meal Planner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>วิเคราะห์แคลอรี่ที่ควรได้รับต่อวัน</h1>
+    <p class="subtitle">คำนวณ BMR/TDEE + BMI + สุ่มเมนูรายวัน by Project E.A.T.</p>
+
+    <!-- ====== วิเคราะห์แคล ====== -->
+    <section class="card">
+      <h2>ข้อมูลผู้ใช้</h2>
+
+      <div class="grid">
+        <div class="field">
+          <label for="age">อายุ (ปี)</label>
+          <input id="age" type="number" min="1" max="120" placeholder="เช่น 16">
+        </div>
+
+        <div class="field">
+          <label for="gender">เพศ</label>
+          <select id="gender">
+            <option value="male">ชาย</option>
+            <option value="female">หญิง</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="weight">น้ำหนัก (kg)</label>
+          <input id="weight" type="number" min="1" max="500" step="0.1" placeholder="เช่น 52.5">
+        </div>
+
+        <div class="field">
+          <label for="height">ส่วนสูง (cm)</label>
+          <input id="height" type="number" min="1" max="260" step="0.1" placeholder="เช่น 160">
+        </div>
+
+        <div class="field full">
+          <label for="activity">ระดับกิจกรรมต่อวัน</label>
+          <select id="activity">
+            <option value="1.2">น้อยมาก (นั่งเกือบทั้งวัน) × 1.2</option>
+            <option value="1.375">เบา (ออกกำลังกาย 1–3 วัน/สัปดาห์) × 1.375</option>
+            <option value="1.55" selected>ปานกลาง (3–5 วัน/สัปดาห์) × 1.55</option>
+            <option value="1.725">หนัก (6–7 วัน/สัปดาห์) × 1.725</option>
+            <option value="1.9">หนักมาก (งานใช้แรง/ซ้อมหนัก) × 1.9</option>
+          </select>
+          <small class="hint">TDEE = BMR × ตัวคูณกิจกรรม</small>
+        </div>
+
+        <div class="field full">
+          <label for="goal">เป้าหมาย</label>
+          <select id="goal">
+            <option value="lose">ลดน้ำหนัก (−300 kcal)</option>
+            <option value="maintain" selected>คงน้ำหนัก (0 kcal)</option>
+            <option value="gain">เพิ่มน้ำหนัก (+300 kcal)</option>
+          </select>
+          <small class="hint">ระบบจะปรับแคลที่แนะนำต่อวันตามเป้าหมาย</small>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="calcBtn" class="btn primary" type="button">วิเคราะห์แคล</button>
+        <button id="clearBtn" class="btn ghost" type="button">ล้างค่า</button>
+      </div>
+
+      <div id="errBox" class="error" style="display:none;"></div>
+
+      <div id="resultCard" style="display:none;">
+        <div class="resultGrid">
+          <div class="resultBox">
+            <div class="label">BMR (พลังงานพื้นฐาน)</div>
+            <div class="value" id="bmrValue">-</div>
+            <div class="hint">พลังงานที่ใช้แม้อยู่เฉย ๆ</div>
+          </div>
+
+          <div class="resultBox">
+            <div class="label">แคลที่แนะนำต่อวัน (ปรับตามเป้าหมายแล้ว)</div>
+            <div class="value" id="tdeeValue">-</div>
+            <div class="hint" id="goalText">-</div>
+          </div>
+
+          <div class="resultBox">
+            <div class="label">BMI</div>
+            <div class="value" id="bmiValue">-</div>
+            <div class="hint" id="bmiStatus">-</div>
+          </div>
+        </div>
+
+        <p class="note" id="rangeValue"></p>
+        <p class="note">หมายเหตุ: ผลลัพธ์เป็นการประเมินเบื้องต้น ไม่ใช่การวินิจฉัยทางการแพทย์</p>
+      </div>
+    </section>
+
+    <!-- ====== เมนูอาหาร ====== -->
+    <section class="card">
+      <h2>สุ่มเมนูอาหารรายวัน</h2>
+      <p class="subtitle">ต้องกด “วิเคราะห์แคล” ก่อน แล้วค่อกดสุ่ม</p>
+
+      <label>อาหารที่แพ้/ไม่กิน (เลือกได้หลายข้อ)</label>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" class="allergy" value="pork"> หมู</label>
+        <label class="chip"><input type="checkbox" class="allergy" value="chicken"> ไก่</label>
+        <label class="chip"><input type="checkbox" class="allergy" value="beef"> เนื้อวัว</label>
+        <label class="chip"><input type="checkbox" class="allergy" value="seafood"> อาหารทะเล</label>
+        <label class="chip"><input type="checkbox" class="allergy" value="egg"> ไข่</label>
+        <label class="chip"><input type="checkbox" class="allergy" value="milk"> นม</label>
+        <label class="chip"><input type="checkbox" class="allergy" value="nuts"> ถั่ว</label>
+        <label class="chip"><input type="checkbox" class="allergy" value="flour"> แพ้แป้ง (กลูเตน/แป้งสาลี)</label>
+      </div>
+
+      <div class="actions">
+        <button id="menuBtn" class="btn" type="button">สุ่มเมนูวันนี้</button>
+        <button id="menuClearBtn" class="btn ghost" type="button">ล้างเมนู</button>
+      </div>
+
+      <div id="menuResult" class="menuResult" style="display:none;">
+        <div class="resultGrid">
+          <div class="resultBox">
+            <div class="label">มื้อเช้า</div>
+            <div class="value" id="mBreakfast">-</div>
+            <div class="hint" id="kBreakfast"></div>
+          </div>
+          <div class="resultBox">
+            <div class="label">มื้อกลางวัน</div>
+            <div class="value" id="mLunch">-</div>
+            <div class="hint" id="kLunch"></div>
+          </div>
+          <div class="resultBox">
+            <div class="label">มื้อเย็น</div>
+            <div class="value" id="mDinner">-</div>
+            <div class="hint" id="kDinner"></div>
+          </div>
+          <div class="resultBox">
+            <div class="label">ของว่าง</div>
+            <div class="value" id="mSnack">-</div>
+            <div class="hint" id="kSnack"></div>
+          </div>
+        </div>
+
+        <p class="note" id="menuNote"></p>
+
+        <div class="note">
+          <b>ถ้าแพ้แป้ง:</b> แนะนำแทนแป้งสาลีด้วย ข้าว/ข้าวกล้อง, มันหวาน, เผือก, ฟักทอง, ข้าวโพด, หรือเพิ่มโปรตีน+ผัก
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">Formula: Mifflin–St Jeor • Rule-based AI (Decision Logic)</footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
